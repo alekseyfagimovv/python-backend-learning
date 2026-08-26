@@ -21,6 +21,7 @@ asyncio.run(main())
 # Функция для обработки задач в фоне и мгновенной отправки ответа пользователю  
 import asyncio
 
+
 async def check_achies():
     await asyncio.sleep(1.5)
 

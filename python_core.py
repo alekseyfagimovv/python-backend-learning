@@ -53,15 +53,15 @@ for chunk in chunk_pipeline(ids, chunk_size): print(chunk)
 
 # Геттер Сеттер Фильтрация входного значения через ООП 
 class Wallet:
-    def __init__(self, initial_balance: int | float):
+    def __init__(self, initial_balance: float):
         self.balance = initial_balance
 
     @property
-    def balance(self) -> int | float: 
+    def balance(self) -> float: 
         return self._balance
     
     @balance.setter 
-    def balance(self, new_balance: int | float):
+    def balance(self, new_balance: float):
         if new_balance < 0:
             raise ValueError("Коммерческий текст ошибки!")
         self._balance = new_balance
@@ -164,7 +164,6 @@ print(create_booking(2, "тип комнаты"))
 import sys
 from typing import Any, Iterator
 
-
 raw_logs = [{"id": 1, "status": "success", "card_pan": "4444...1111", "amount": 100}, 
             {"id": 2, "status": "failed", "card_pan": "5555...2222", "amount": 200}, 
             {"id": 3, "status": "success", "amount": 300}]
@@ -193,7 +192,6 @@ print(sys.getsizeof(dict))
 # чувствительных данных (данных карты клиента)
 import sys
 from typing import Any, Iterator
-
 
 raw_logs = [{"id": 1, "status": "success", "card_pan": "4444...1111", "amount": 100}, 
             {"id": 2, "status": "failed", "card_pan": "5555...2222", "amount": 200}, 
