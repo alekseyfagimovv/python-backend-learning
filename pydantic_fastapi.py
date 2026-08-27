@@ -39,3 +39,27 @@ async def read_root(rent_info: RentEquipmentDTO,
     return {"contract_number": contract_number,
             "manager_name": manager_name,
             "rent_info": rent_info.model_dump()}
+
+
+
+# Эндпоинт для перевода сотрудника между отделами внутри CRM-системы.
+from fastapi import FastAPI, Path
+from pydantic import BaseModel, Field
+from typing_extensions import Annotated
+
+app = FastAPI()
+
+class OneElement(BaseModel):
+    new_department : str = Field(min_length=3, max_length=50)
+    reason: str = Field(default=None)
+
+@app.post("/api/v1/employees/{employee_id}/transfer")
+async def read_root(dto: OneElement,
+                    employee_id: Annotated[int, Path(title="ID сотрудника", gt=0)],
+                    is_urgent: bool = False):
+    return {"employee_id": employee_id,
+            "new_department": dto.new_department,
+            "reason": dto.reason,
+            "is_urgent": is_urgent}
+
+
