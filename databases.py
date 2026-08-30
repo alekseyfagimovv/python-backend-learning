@@ -67,3 +67,34 @@ FROM products
 WHERE stock > 10
 GROUP BY category
 HAVING SUM(price) > 500000"""  
+
+
+
+# У нас есть две таблицы: users (id, name) и orders (id, user_id, amount).
+# Напиши сырой SQL-запрос, который вернет имена пользователей (name) и 
+# максимальную сумму заказа (MAX(amount)) для каждого пользователя.
+# Ограничение 1: Если у пользователя нет заказов, он должен быть в списке, 
+# а максимальная сумма должна быть NULL или 0.
+# Ограничение 2: Используй LEFT JOIN и GROUP BY.
+
+query =  """SELECT users.name, (MAX(orders.amount))
+FROM users
+LEFT JOIN orders ON users.id = orders.user_id
+GROUP BY users.id, users.name"""
+
+
+# У нас есть интернет-магазин книг. Две таблицы: books (id, title, price) и 
+# sales (id, book_id, quantity) — продажи (сколько штук купили за один раз).
+# Напиши сырой SQL-запрос (строкой), который вернет:
+# Название книги (title) и 
+# суммарное количество проданных штук этой книги (SUM(quantity)).
+
+query =  """SELECT books.title, (SUM(sales.quantity))
+FROM books
+LEFT JOIN sales ON books.id = sales.book_id
+WHERE books.price > 1000
+GROUP BY books.title, books.id"""
+
+
+
+
