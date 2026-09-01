@@ -71,7 +71,7 @@ HAVING SUM(price) > 500000"""
 
 
 # У нас есть две таблицы: users (id, name) и orders (id, user_id, amount).
-# Напиши сырой SQL-запрос, который вернет имена пользователей (name) и 
+# Сырой SQL-запрос, который вернет имена пользователей (name) и 
 # максимальную сумму заказа (MAX(amount)) для каждого пользователя.
 # Ограничение 1: Если у пользователя нет заказов, он должен быть в списке, 
 # а максимальная сумма должна быть NULL или 0.
@@ -85,16 +85,42 @@ GROUP BY users.id, users.name"""
 
 # У нас есть интернет-магазин книг. Две таблицы: books (id, title, price) и 
 # sales (id, book_id, quantity) — продажи (сколько штук купили за один раз).
-# Напиши сырой SQL-запрос (строкой), который вернет:
+# Сырой SQL-запрос (строкой), который вернет:
 # Название книги (title) и 
 # суммарное количество проданных штук этой книги (SUM(quantity)).
 
-query =  """SELECT books.title, (SUM(sales.quantity))
+query =  """SELECT books.title, SUM(sales.quantity) AS total_sales
 FROM books
 LEFT JOIN sales ON books.id = sales.book_id
 WHERE books.price > 1000
 GROUP BY books.title, books.id"""
 
+# Есть таблица courses (id, title) и таблица lessons (id, title, course_id).
+# Нужно вывести список всех курсов, существующих в системе
 
 
+query =  """SELECT courses.title, lessons.title
+FROM courses
+LEFT JOIN lessons ON courses.id = lessons.course_id"""
+
+# Выведите идентификатор и признак наличия интернета в помещении. 
+# Если интернет в сдаваемом жилье присутствует, то выведите «YES», иначе «NO».
+
+"""SELECT Rooms.id,
+CASE
+    WHEN Rooms.has_internet = 1 THEN "YES"
+    ELSE "NO"
+END AS has_internet
+FROM Rooms"""
+
+# Выведите поля id, home_type, price у всего жилья из таблицы Rooms. 
+# Если комната имеет телевизор и интернет одновременно, 
+# то в качестве цены в поле price выведите цену, применив скидку 10%.
+
+"""SELECT Rooms.id, Rooms.home_type,
+CASE 
+    WHEN Rooms.has_tv AND Rooms.has_internet THEN Rooms.price * 0.9
+    ELSE Rooms.price
+END AS price
+FROM Rooms"""
 
