@@ -63,3 +63,103 @@ async def read_root(dto: OneElement,
             "is_urgent": is_urgent}
 
 
+# КОМПЛЕКСНОЕ ТЗ: Эндпоинт админки для управления заказами пиццерии НЕ ДОПИСАЛ
+# ------------------------------------------------
+# Импорты 
+
+from fastapi import FastAPI, Path, HTTPException, Depends
+from pydantic import BaseModel, Field, field_validator
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, joinedload, DeclarativeBase
+
+
+app = FastAPI()
+
+# ------------------------------------------------
+# Инициализация
+
+DATABASE_URL = "postgresql+asyncpg://user:pass@localhost/pizza_db"
+
+async_engine = create_async_engine(
+    DATABASE_URL,
+    pool_size=10,        
+    max_overflow=20      
+)
+
+AsyncSessionLocal = sessionmaker(
+    bind=async_engine,    
+    class_=AsyncSession,   
+    expire_on_commit=False
+)
+
+# ------------------------------------------------
+# Validation model 
+
+class Base(DeclarativeBase):
+    pass
+
+
+class OrderCreateDTO(Base):
+    __tablename__ = "orders"
+
+    pizza_name: str
+    price: int
+    ingredients: list[str]
+
+
+
+
+
+
+
+
+# ------------------------------------------------
+# Validation model 
+
+class Base(BaseModel):
+    pass
+
+class OrderCreateDTO(Base):
+    __tablename__ = "orders"
+
+    pizza_name: str
+    price: int
+    ingredients: list[str]
+
+    @field_validator("pizza_name")
+    @classmethod
+    def check_str(cls, value):
+        if value.strip() == '':
+            raise ValueError("Название не может быть пустым")
+        return value 
+    
+    @field_validator("ingredients")
+    @classmethod
+    def check_min_ungridients(cls, value):
+        if len(value) < 2:
+            raise ValueError("Минимум 2 ингредиента")
+        return value 
+    
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+
+# ------------------------------------------------
+# Endpoint
+
+# Админ может сортировать заказы только по трем колонкам: "id", "price", "pizza_name". не понимаю как выполнить
+
+# А где это должно писаться? в какой части программы в main?
+rights = ["id", "price", "pizza_name"]
+
+@app.get("/admin/orders/{sort_by}")
+async def get_admin_orders(sort_by: str = "id" , db: AsyncSession = Depends(get_db)):
+    if sort_by not in rights:
+        raise HTTPException(status_code=400, detail="Неверная колонка для сортировки")
+    query = select(orders).options(joinedload(orders.courier)).order_by(getattr(orders, sort_by)) # order_by не понимаю  откуда импортировать и оптион
+    result = await db.execute(query)
+    orders = result.scalars().all()
+    return orders
