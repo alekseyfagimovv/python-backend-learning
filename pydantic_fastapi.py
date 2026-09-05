@@ -70,9 +70,12 @@ async def read_root(dto: OneElement,
 from fastapi import FastAPI, Path, HTTPException, Depends
 from pydantic import BaseModel, Field, field_validator
 
-from sqlalchemy import select
+from sqlalchemy import select, String, Numeric, ForeignKey
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, joinedload, DeclarativeBase
+from sqlalchemy.orm import sessionmaker, joinedload, DeclarativeBase, Mapped, mapped_column, relationship
+
+from decimal import Decimal
+from datetime import datetime
 
 
 app = FastAPI()
@@ -95,35 +98,24 @@ AsyncSessionLocal = sessionmaker(
 )
 
 # ------------------------------------------------
-# Validation model 
+# Table model SQL ALCHEMY
 
 class Base(DeclarativeBase):
     pass
 
-
-class OrderCreateDTO(Base):
-    __tablename__ = "orders"
-
-    pizza_name: str
-    price: int
-    ingredients: list[str]
+class OrderModel(Base):
+    __tablename__ = "Order"   
 
 
-
-
-
-
-
-
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[str] 
+    pizza_name: Mapped[str]
+    price: Mapped[Decimal]
+ 
 # ------------------------------------------------
 # Validation model 
 
-class Base(BaseModel):
-    pass
-
-class OrderCreateDTO(Base):
-    __tablename__ = "orders"
-
+class OrderCreateDTO(BaseModel):
     pizza_name: str
     price: int
     ingredients: list[str]
@@ -150,16 +142,14 @@ async def get_db():
 # ------------------------------------------------
 # Endpoint
 
-# Админ может сортировать заказы только по трем колонкам: "id", "price", "pizza_name". не понимаю как выполнить
+# Админ может сортировать заказы только по трем колонкам: "id", "price", "pizza_name"
 
-# А где это должно писаться? в какой части программы в main?
-rights = ["id", "price", "pizza_name"]
-
-@app.get("/admin/orders/{sort_by}")
+@app.get("/admin/orders/")
 async def get_admin_orders(sort_by: str = "id" , db: AsyncSession = Depends(get_db)):
+    rights = ["id", "price", "pizza_name"]
     if sort_by not in rights:
         raise HTTPException(status_code=400, detail="Неверная колонка для сортировки")
-    query = select(orders).options(joinedload(orders.courier)).order_by(getattr(orders, sort_by)) # order_by не понимаю  откуда импортировать и оптион
+    query = select(OrderModel).order_by(getattr(OrderModel, sort_by))  # getattr(Order, sort_by) что за функция и что она даёт 
     result = await db.execute(query)
     orders = result.scalars().all()
     return orders
